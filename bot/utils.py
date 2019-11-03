@@ -57,6 +57,9 @@ def post_opencritic_scores(submission, aggregator):
         c = '|' * c
         metacritic_reply = metacritic_reply + '{:02d} - {}  \n'.format(r, c)
         print('{:02d} - {}'.format(r, c))
-    metacritic_reply = metacritic_reply + '\n\nCredit: [gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu/death_stranding_review_thread/f6031sc/)'
-    print('^(Credit: [gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu/death_stranding_review_thread/f6031sc/))')
-    # submission['submission'].reply(metacritic_reply)
+    metacritic_reply = metacritic_reply + '\n\n^([github](https://github.com/lebeli/opencritic_bot))'
+    metacritic_reply = metacritic_reply + '\n\n^(Credit: [gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu' \
+                                          '/death_stranding_review_thread/f6031sc/))'
+    print('Credit: [gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu/death_stranding_review_thread/f6031sc/)')
+    print('github')
+    submission['submission'].reply(metacritic_reply)

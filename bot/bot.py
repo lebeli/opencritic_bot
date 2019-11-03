@@ -29,7 +29,7 @@ class CriticAggregatorBot:
                 self.submissions_save = pickle.load(file)
         reddit = praw.Reddit('opencritic_bot')
         subreddit = reddit.subreddit('games')
-        for submission in subreddit.search('review thread', time_filter='week'):  # TODO: "day"
+        for submission in subreddit.search('review thread', time_filter='day'):
             if 'review thread' in submission.title.lower() and submission.id not in list(self.submissions_save):
                 self.submissions[submission.id] = submission
         if self.submissions:
