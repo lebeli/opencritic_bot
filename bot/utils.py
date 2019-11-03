@@ -24,15 +24,19 @@ def get_content(url):
 def get_ratings(content, aggregator):
     ratings = np.array([])
     if aggregator == 'opencritic':
-        ratings_container = [rating.find("span") for rating in content.find_all('app-score-display')]
-        for rating in ratings_container:
-            if not rating.find("i") and "/" in rating.text:
-                rating = float(rating.text.split("/")[0].strip()) * (10 / float(rating.text.split('/')[1].strip()))
+        ratings_containers = [rating.find("span") for rating in content.find_all('app-score-display')]
+        for ratings_container in ratings_containers:
+            if ratings_container.find("i"):
+                rating = len(ratings_container.find_all('i', class_='fas fa-star')) + \
+                         0.5 * len(ratings_container.find_all('i', class_='fas fa-star-half-alt'))
+                ratings = np.append(ratings, [rating])
+            if not ratings_container.find("i") and "/" in ratings_container.text:
+                rating = float(ratings_container.text.split("/")[0].strip()) * (10 / float(ratings_container.text.split('/')[1].strip()))
                 ratings = np.append(ratings, [rating])
     if aggregator == 'metacritic':
-        ratings_container = [rating.find("div") for rating in content.find_all('div', class_='review_grade')]
-        for rating in ratings_container:
-            rating = float(rating.text) / 10
+        ratings_containers = [rating.find("div") for rating in content.find_all('div', class_='review_grade')]
+        for ratings_container in ratings_containers:
+            rating = float(ratings_container.text) / 10
             ratings = np.append(ratings, [rating])
     ratings, counts = np.unique(ratings.astype(int), return_counts=True)
     scale = np.delete(np.arange(1, 11), ratings - 1)
@@ -62,4 +66,4 @@ def post_opencritic_scores(submission, aggregator):
                                           '/death_stranding_review_thread/f6031sc/))'
     print('Credit: [gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu/death_stranding_review_thread/f6031sc/)')
     print('github')
-    submission['submission'].reply(metacritic_reply)
+    # submission.reply(metacritic_reply)
