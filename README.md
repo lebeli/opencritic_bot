@@ -49,10 +49,6 @@ Open your commandline in the project source folder. Run `python main.py` to exec
 
 * **lebeli** - *Initial work* - [lebeli](https://github.com/lebeli)
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
 ## Disclaimer
 
 * This simple bot is a work in progress. 
