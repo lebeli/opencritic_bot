@@ -1,0 +1,3 @@
+praw
+numpy
+beautifulsoup4
