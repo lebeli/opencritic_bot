@@ -30,7 +30,7 @@ Make sure you have a working [reddit](reddit.com) account with 2FA disabled.
 Create a reddit app as shown [here](https://www.pythonforengineers.com/build-a-reddit-bot-part-1/).
 
 #### 2. Configure praw.ini
-Edit the *praw.ini* in the *praw* package folder according to the [guide obove](https://www.pythonforengineers.com/build-a-reddit-bot-part-1/). It is located in *Anaconda3\Lib\site-packages\praw*, if you are using anaconda 3.
+Edit the *praw.ini* in the *praw* package folder according to the [guide above](https://www.pythonforengineers.com/build-a-reddit-bot-part-1/). It is located in *Anaconda3\Lib\site-packages\praw*, if you are using anaconda 3.
 Use the following configuration name and add your credentials:
 
 ```
