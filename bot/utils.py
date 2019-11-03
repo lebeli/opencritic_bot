@@ -24,11 +24,11 @@ def get_content(url):
 def get_ratings(content, aggregator):
     ratings = np.array([])
     if aggregator == 'opencritic':
-        ratings_containers = [rating.find("span") for rating in content.find_all('app-score-display')]
+        ratings_containers = [rating.find("app-score-display") for rating in content.find_all('div', class_='review-box')]
         for ratings_container in ratings_containers:
             if ratings_container.find("i"):
-                rating = len(ratings_container.find_all('i', class_='fas fa-star')) + \
-                         0.5 * len(ratings_container.find_all('i', class_='fas fa-star-half-alt'))
+                rating = (10 / len(ratings_container.find_all("i")))*(len(ratings_container.find_all('i', class_='fas fa-star')) + \
+                         0.5 * len(ratings_container.find_all('i', class_='fas fa-star-half-alt')))
                 ratings = np.append(ratings, [rating])
             if not ratings_container.find("i") and "/" in ratings_container.text:
                 rating = float(ratings_container.text.split("/")[0].strip()) * (10 / float(ratings_container.text.split('/')[1].strip()))
@@ -53,17 +53,17 @@ def post_opencritic_scores(submission, aggregator):
         aggregator = alternative[aggregator]
     url = get_url_from_selftext(selftext, aggregator.lower())
     content = get_content(url)
-    ratings, counts = get_ratings(content, aggregator.lower())
     title = content.find('h1').text
+    ratings, counts = get_ratings(content, aggregator.lower())
     metacritic_reply = '{} {} review spread at a glance:\n\n'.format(title, aggregator)
     print('{} {} review spread at a glance:'.format(title, aggregator))
     for r, c in zip(ratings[::-1], counts[::-1]):
         c = '|' * c
         metacritic_reply = metacritic_reply + '{:02d} - {}  \n'.format(r, c)
         print('{:02d} - {}'.format(r, c))
-    metacritic_reply = metacritic_reply + '\n\n^([github](https://github.com/lebeli/opencritic_bot))'
     metacritic_reply = metacritic_reply + '\n\n^(Credit: [gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu' \
                                           '/death_stranding_review_thread/f6031sc/))'
+    metacritic_reply = metacritic_reply + '  \n^([github](https://github.com/lebeli/opencritic_bot))'
     print('Credit: [gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu/death_stranding_review_thread/f6031sc/)')
     print('github')
-    # submission.reply(metacritic_reply)
+    submission.reply(metacritic_reply)

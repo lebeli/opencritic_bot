@@ -13,6 +13,7 @@ __status__ = 'Dev'
 
 if __name__ == '__main__':
     criticAggregatorBot = CriticAggregatorBot()
+    print(int(9.5))
     while True:
         if criticAggregatorBot.new_submissions():
             print("New submissions!")
