@@ -1,6 +1,7 @@
 from bot.bot import CriticAggregatorBot
 import praw
 import time
+import os
 
 
 __author__ = 'https://github.com/lebeli'
@@ -13,15 +14,12 @@ __status__ = 'Dev'
 
 if __name__ == '__main__':
     criticAggregatorBot = CriticAggregatorBot()
-    while True:
-        if criticAggregatorBot.new_submissions():
-            print("New submissions!")
-            try:
-                criticAggregatorBot.reply(aggregator='MetaCritic')
-            except praw.exceptions.APIException:
-                print("Waiting...")
-                time.sleep(600)
-                continue
-        else:
-            print("No updates found.")
-        time.sleep(1800)
+    # if criticAggregatorBot.new_updates():
+    #     print('New updates!')
+    #     criticAggregatorBot.edit()
+    if criticAggregatorBot.new_submissions():
+        print('New submissions!')
+        criticAggregatorBot.reply(aggregator='MetaCritic')
+    else:
+        print("No updates found.")
+

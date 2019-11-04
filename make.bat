@@ -1,2 +1,1 @@
-pip install -r requirements.txt
-PAUSE
+CALL pip install -r requirements.txt

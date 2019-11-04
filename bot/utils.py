@@ -46,7 +46,7 @@ def get_ratings(content, aggregator):
     return ratings[sort_idx], counts[sort_idx]
 
 
-def post_opencritic_scores(submission, aggregator):
+def generate_reply_body(submission, aggregator):
     selftext = submission.selftext
     alternative = {'OpenCritic': 'MetaCritic', 'MetaCritic': 'OpenCritic'}
     if aggregator not in selftext:
@@ -55,15 +55,10 @@ def post_opencritic_scores(submission, aggregator):
     content = get_content(url)
     title = content.find('h1').text
     ratings, counts = get_ratings(content, aggregator.lower())
-    metacritic_reply = '{} {} review spread at a glance:\n\n'.format(title, aggregator)
-    print('{} {} review spread at a glance:'.format(title, aggregator))
+    reply_body = '{} {} review spread at a glance:\n\n'.format(title, aggregator)
     for r, c in zip(ratings[::-1], counts[::-1]):
         c = '|' * c
-        metacritic_reply = metacritic_reply + '{:02d} - {}  \n'.format(r, c)
-        print('{:02d} - {}'.format(r, c))
-    metacritic_reply = metacritic_reply + '\n\n^(Credit: [gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu' \
-                                          '/death_stranding_review_thread/f6031sc/))'
-    metacritic_reply = metacritic_reply + '  \n^([github](https://github.com/lebeli/opencritic_bot))'
-    print('Credit: [gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu/death_stranding_review_thread/f6031sc/)')
-    print('github')
-    submission.reply(metacritic_reply)
+        reply_body = reply_body + '{:02d} - {}  \n'.format(r, c)
+    reply_body = reply_body + '\n\n^(Credit: [gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu/death_stranding_review_thread/f6031sc/))'
+    reply_body = reply_body + '  \n^[github](https://github.com/lebeli/opencritic_bot)'
+    return reply_body
