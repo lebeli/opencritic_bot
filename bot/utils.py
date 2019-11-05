@@ -58,7 +58,7 @@ def generate_reply_body(submission, aggregator):
     reply_body = '{} {} review spread at a glance:\n\n'.format(title, aggregator)
     for r, c in zip(ratings[::-1], counts[::-1]):
         c = '|' * c
-        reply_body = reply_body + '{:02d} - {}  \n'.format(r, c)
-    reply_body = reply_body + '\n\n^(Credit: [gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu/death_stranding_review_thread/f6031sc/))'
+        reply_body = reply_body + '    {:02d} - {}  \n'.format(r, c)
+    reply_body = reply_body + '\n\n^Credit: ^[gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu/death_stranding_review_thread/f6031sc/)'
     reply_body = reply_body + '  \n^[github](https://github.com/lebeli/opencritic_bot)'
     return reply_body
