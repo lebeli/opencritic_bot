@@ -11,11 +11,12 @@ __status__ = 'Dev'
 
 if __name__ == '__main__':
     criticAggregatorBot = CriticAggregatorBot()
-    if criticAggregatorBot.recent_submissions():
-        print('Checking for updates.')
-        criticAggregatorBot.update()
-    if criticAggregatorBot.new_submissions():
-        print('New submissions!')
-        criticAggregatorBot.reply(aggregator='MetaCritic')
-    else:
-        print('No submissions found.')
+    criticAggregatorBot.run()
+    # if criticAggregatorBot.recent_submissions():
+    #     print('Checking for updates.')
+    #     criticAggregatorBot.update()
+    # if criticAggregatorBot.new_submissions():
+    #     print('New submissions!')
+    #     criticAggregatorBot.reply(aggregator='MetaCritic')
+    # else:
+    #     print('No submissions found.')

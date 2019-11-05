@@ -36,13 +36,13 @@ class CriticAggregatorBot:
             # increase interval every 5h to max. 1h
             if (self.start_time - datetime.now()).seconds >= 18000 and self.interval < 3600:
                 self.interval = self.interval + 900
-            if self.criticAggregatorBot.recent_submissions():
+            if self.recent_submissions():
                 print('Checking for updates.')
-                self.criticAggregatorBot.update()
-            if self.criticAggregatorBot.new_submissions():
+                self.update()
+            if self.new_submissions():
                 self.interval = 900
                 print('New submissions!')
-                self.criticAggregatorBot.reply(aggregator='MetaCritic')
+                self.reply(aggregator='MetaCritic')
             else:
                 print('No submissions found.')
             time.sleep(self.interval)
