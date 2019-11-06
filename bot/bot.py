@@ -81,13 +81,13 @@ class CriticAggregatorBot:
     def update(self):
         for sid, cid, agg in zip(self.submissions_save['submission_id'], self.submissions_save['comment_id'], self.submissions_save['aggregator']):
             comment = self.reddit.comment(cid)
-            reply = get_reply_body(self.reddit.submission(sid), agg) + get_reply_footer() + get_reply_edit_time(utc_time_now())
+            reply_body = get_reply_body(self.reddit.submission(sid), agg)
             try:
                 if comment.author is None:
                     print('Comment was removed.')
                     continue
-                if comment.body != reply:
-                    comment.edit(reply)
+                if reply_body not in comment.body:
+                    comment.edit(reply_body + get_reply_footer() + get_reply_edit_time(utc_time_now()))
                     print('Comment edited.')
                 else:
                     print('No changes detected.')
