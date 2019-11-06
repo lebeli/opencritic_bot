@@ -1,10 +1,9 @@
 import praw
 import prawcore
-import time
-from datetime import datetime
 import pickle
 import os
-from bot.utils import *
+from utils.parsing import *
+from utils.time import utc_time_now
 
 
 __author__ = 'https://github.com/lebeli'
@@ -20,7 +19,7 @@ class CriticAggregatorBot:
 
     def __init__(self):
         self.interval = 3600
-        self.start_time = datetime.now()
+        self.start_time = utc_time_now()
         self.submit = {}
         self.edit = {}
         self.submissions_save = {'submission_id': np.array([]), 'time': np.array([]),
@@ -34,7 +33,7 @@ class CriticAggregatorBot:
     def run(self):
         while True:
             # increase interval every 5h to max. 1h
-            if (self.start_time - datetime.now()).seconds >= 18000 and self.interval < 3600:
+            if (self.start_time - utc_time_now()).seconds >= 18000 and self.interval < 3600:
                 self.interval = self.interval + 900
             if self.recent_submissions():
                 print('Checking for updates.')
@@ -65,7 +64,7 @@ class CriticAggregatorBot:
     def reply(self, aggregator='OpenCritic'):
         for id, submission in self.submit.copy().items():
             time.sleep(2)
-            reply_body = generate_reply_body(submission, aggregator)
+            reply_body = get_reply_body(submission, aggregator)
             try:
                 comment = submission.reply(reply_body)
             except praw.exceptions.APIException:
@@ -82,13 +81,13 @@ class CriticAggregatorBot:
     def update(self):
         for sid, cid, agg in zip(self.submissions_save['submission_id'], self.submissions_save['comment_id'], self.submissions_save['aggregator']):
             comment = self.reddit.comment(cid)
-            reply_body = generate_reply_body(self.reddit.submission(sid), agg)
+            reply = get_reply_body(self.reddit.submission(sid), agg) + get_reply_footer() + get_reply_edit_time(utc_time_now())
             try:
                 if comment.author is None:
                     print('Comment was removed.')
                     continue
-                if comment.body != reply_body:
-                    comment.edit(reply_body)
+                if comment.body != reply:
+                    comment.edit(reply)
                     print('Comment edited.')
                 else:
                     print('No changes detected.')

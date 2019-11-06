@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from utils.time import *
 import numpy as np
 
 
@@ -46,7 +47,7 @@ def get_ratings(content, aggregator):
     return ratings[sort_idx], counts[sort_idx]
 
 
-def generate_reply_body(submission, aggregator):
+def get_reply_body(submission, aggregator):
     selftext = submission.selftext
     alternative = {'OpenCritic': 'MetaCritic', 'MetaCritic': 'OpenCritic'}
     if aggregator not in selftext:
@@ -59,6 +60,13 @@ def generate_reply_body(submission, aggregator):
     for r, c in zip(ratings[::-1], counts[::-1]):
         c = '|' * c
         reply_body = reply_body + '    {:02d} - {}  \n'.format(r, c)
-    reply_body = reply_body + '\n\n^Credit: ^[gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu/death_stranding_review_thread/f6031sc/)'
-    reply_body = reply_body + '  \n^[github](https://github.com/lebeli/opencritic_bot)'
-    return reply_body
+    return reply_body + '\n\n'
+
+
+def get_reply_footer():
+    return '^Credit: ^[gtafan6](https://www.reddit.com/r/Games/comments/dq0pdu/death_stranding_review_thread/f6031sc/)'\
+           + '  \n^[github](https://github.com/lebeli/opencritic_bot)\n\n'
+
+
+def get_reply_edit_time(dt):
+    return '^^^Last ^^^update {} ^^^{}:{:02d} ^^^UTC'.format(get_date_str(utc_time_now()), dt.hour, dt.minute)
