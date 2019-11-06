@@ -11,4 +11,4 @@ def utc_time_now():
 
 
 def get_date_str(dt):
-    return "^^^{} ^^^{}, ^^^{}".format(MONTHS[dt.month - 1], dt.day, dt.year)
+    return "^^{} ^^{}, ^^{}".format(MONTHS[dt.month - 1], dt.day, dt.year)

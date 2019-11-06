@@ -50,7 +50,7 @@ class CriticAggregatorBot:
         return self.submit
 
     def new_submissions(self):
-        for submission in self.subreddit.search('review thread', time_filter='day'):
+        for submission in self.subreddit.search('title:review thread', time_filter='day'):
             if submission.id not in self.submissions_save['submission_id']:
                 self.submit[submission.id] = submission
         if self.submit:

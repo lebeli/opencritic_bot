@@ -69,4 +69,4 @@ def get_reply_footer():
 
 
 def get_reply_edit_time(dt):
-    return '^^^Last ^^^update {} ^^^{}:{:02d} ^^^UTC'.format(get_date_str(utc_time_now()), dt.hour, dt.minute)
+    return '^^Last ^^update {} ^^{}:{:02d} ^^UTC'.format(get_date_str(utc_time_now()), dt.hour, dt.minute)
