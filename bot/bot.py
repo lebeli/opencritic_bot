@@ -2,7 +2,11 @@ import praw
 import prawcore
 import pickle
 import os
+import time
+
+from datetime import datetime
 from utils.parsing import *
+from utils.reply import *
 from utils.time import utc_time_now
 
 
@@ -101,7 +105,7 @@ class CriticAggregatorBot:
     def recent_submissions(self):
         if len(self.submissions_save['submission_id']) == 0:
             return False
-        keep_idx = [i for i, t in enumerate(self.submissions_save['time']) if ((t - datetime.now()).seconds / 3600) < 48]
+        keep_idx = [i for i, t in enumerate(self.submissions_save['time']) if (datetime.now() - t).days < 2]
         self.submissions_save['submission_id'] = self.submissions_save['submission_id'][keep_idx]
         self.submissions_save['time'] = self.submissions_save['time'][keep_idx]
         self.submissions_save['comment_id'] = self.submissions_save['comment_id'][keep_idx]
