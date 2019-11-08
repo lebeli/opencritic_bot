@@ -16,6 +16,6 @@ if __name__ == '__main__':
         criticAggregatorBot.update()
     if criticAggregatorBot.new_submissions():
         print('New submissions!')
-        criticAggregatorBot.reply(aggregator='MetaCritic')
+        criticAggregatorBot.reply(aggregator='OpenCritic')
     else:
         print('No submissions found.')

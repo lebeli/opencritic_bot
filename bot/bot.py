@@ -31,8 +31,7 @@ class CriticAggregatorBot:
         self.reddit = praw.Reddit('opencritic_bot')
         self.subreddit = self.reddit.subreddit('games')
         if os.path.exists(CriticAggregatorBot.SAVE_PATH) and os.path.getsize(CriticAggregatorBot.SAVE_PATH):
-            with open('resources/submissions_save.pkl', 'rb') as file:
-                self.submissions_save = pickle.load(file)
+            self.submissions_save = self.load_submissions()
 
     def run(self):
         while True:
@@ -61,9 +60,13 @@ class CriticAggregatorBot:
             return True
         return False
 
-    def save_submissions(self, submissions):
+    def save_submissions(self):
         with open(CriticAggregatorBot.SAVE_PATH, 'wb') as file:
-            pickle.dump(submissions, file, protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(self.submissions_save, file, protocol=pickle.HIGHEST_PROTOCOL)
+
+    def load_submissions(self):
+        with open(CriticAggregatorBot.SAVE_PATH, 'wb') as file:
+            return pickle.load(file, protocol=pickle.HIGHEST_PROTOCOL)
 
     def reply(self, aggregator='OpenCritic'):
         for id, submission in self.submit.copy().items():
@@ -79,16 +82,20 @@ class CriticAggregatorBot:
             self.submissions_save['submission_id'] = np.append(self.submissions_save['submission_id'], [submission.id])
             self.submissions_save['time'] = np.append(self.submissions_save['time'], [datetime.now()])
             self.submissions_save['aggregator'] = np.append(self.submissions_save['aggregator'], [aggregator])
-        self.save_submissions(self.submissions_save)
+        self.save_submissions()
         self.submit = {}
 
     def update(self):
-        for sid, cid, agg in zip(self.submissions_save['submission_id'], self.submissions_save['comment_id'], self.submissions_save['aggregator']):
+        removed = False
+        remove_idx = []
+        for i, (sid, cid, agg) in enumerate(zip(self.submissions_save['submission_id'].copy(), self.submissions_save['comment_id'].copy(), self.submissions_save['aggregator'].copy())):
             comment = self.reddit.comment(cid)
             reply_body = get_reply_body(self.reddit.submission(sid), agg)
             try:
                 if comment.author is None:
                     print('Comment was removed.')
+                    remove_idx.append(i)
+                    removed = True
                     continue
                 if reply_body not in comment.body:
                     comment.edit(reply_body + get_reply_footer() + get_reply_edit_time(utc_time_now()))
@@ -101,6 +108,12 @@ class CriticAggregatorBot:
             except prawcore.exceptions.RequestException:
                 print('Connection timeout.')
                 continue
+        if removed:
+            self.submissions_save['submission_id'] = np.delete(self.submissions_save['submission_id'], remove_idx)
+            self.submissions_save['comment_id'] = np.delete(self.submissions_save['comment_id'], remove_idx)
+            self.submissions_save['aggregator'] = np.delete(self.submissions_save['aggregator'], remove_idx)
+            self.submissions_save['time'] = np.delete(self.submissions_save['time'], remove_idx)
+            self.save_submissions()
 
     def recent_submissions(self):
         if len(self.submissions_save['submission_id']) == 0:

@@ -4,8 +4,10 @@ from utils.time import utc_time_now, get_date_str
 
 def get_reply_body(submission, aggregator):
     selftext = submission.selftext
+    if submission.selftext_html is None:
+        selftext = submission.crosspost_parent_list[0]['selftext']
     alternative = {'OpenCritic': 'MetaCritic', 'MetaCritic': 'OpenCritic'}
-    if aggregator not in selftext:
+    if aggregator.lower() not in selftext:
         aggregator = alternative[aggregator]
     url = get_url_from_selftext(selftext, aggregator.lower())
     content = get_content(url)
