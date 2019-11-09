@@ -65,8 +65,8 @@ class CriticAggregatorBot:
             pickle.dump(self.submissions_save, file, protocol=pickle.HIGHEST_PROTOCOL)
 
     def load_submissions(self):
-        with open(CriticAggregatorBot.SAVE_PATH, 'wb') as file:
-            return pickle.load(file, protocol=pickle.HIGHEST_PROTOCOL)
+        with open(CriticAggregatorBot.SAVE_PATH, 'rb') as file:
+            return pickle.load(file)
 
     def reply(self, aggregator='OpenCritic'):
         for id, submission in self.submit.copy().items():
@@ -86,16 +86,13 @@ class CriticAggregatorBot:
         self.submit = {}
 
     def update(self):
-        removed = False
-        remove_idx = []
         for i, (sid, cid, agg) in enumerate(zip(self.submissions_save['submission_id'].copy(), self.submissions_save['comment_id'].copy(), self.submissions_save['aggregator'].copy())):
             comment = self.reddit.comment(cid)
             reply_body = get_reply_body(self.reddit.submission(sid), agg)
             try:
                 if comment.author is None:
+                    self.remove_save(i)
                     print('Comment was removed.')
-                    remove_idx.append(i)
-                    removed = True
                     continue
                 if reply_body not in comment.body:
                     comment.edit(reply_body + get_reply_footer() + get_reply_edit_time(utc_time_now()))
@@ -105,15 +102,13 @@ class CriticAggregatorBot:
             except praw.exceptions.ClientException:
                 print('Comment not found.')
                 continue
-            except prawcore.exceptions.RequestException:
-                print('Connection timeout.')
-                continue
-        if removed:
-            self.submissions_save['submission_id'] = np.delete(self.submissions_save['submission_id'], remove_idx)
-            self.submissions_save['comment_id'] = np.delete(self.submissions_save['comment_id'], remove_idx)
-            self.submissions_save['aggregator'] = np.delete(self.submissions_save['aggregator'], remove_idx)
-            self.submissions_save['time'] = np.delete(self.submissions_save['time'], remove_idx)
-            self.save_submissions()
+
+    def remove_save(self, idx):
+        self.submissions_save['submission_id'] = np.delete(self.submissions_save['submission_id'], idx)
+        self.submissions_save['comment_id'] = np.delete(self.submissions_save['comment_id'], idx)
+        self.submissions_save['aggregator'] = np.delete(self.submissions_save['aggregator'], idx)
+        self.submissions_save['time'] = np.delete(self.submissions_save['time'], idx)
+        self.save_submissions()
 
     def recent_submissions(self):
         if len(self.submissions_save['submission_id']) == 0:

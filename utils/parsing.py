@@ -28,11 +28,6 @@ def get_content(url):
             html = requests.get(url).content
         except requests.exceptions.ConnectionError:
             print('Connection denied.')
-            headers = {
-                'Referer': 'https://itunes.apple.com',
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
-            }
-            html = requests.get(url, headers=headers).content
     return BeautifulSoup(html, 'html.parser')
 
 
