@@ -1,5 +1,4 @@
 import praw
-import prawcore
 import pickle
 import os
 import time
@@ -71,9 +70,8 @@ class CriticAggregatorBot:
     def reply(self, aggregator='OpenCritic'):
         for id, submission in self.submit.copy().items():
             time.sleep(2)
-            reply_body = get_reply_body(submission, aggregator)
             try:
-                comment = submission.reply(reply_body)
+                comment = submission.reply(get_reply_body(submission, aggregator) + get_reply_footer())
             except praw.exceptions.APIException:
                 print("Exception!")
                 continue
