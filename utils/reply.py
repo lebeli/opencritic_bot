@@ -12,7 +12,6 @@ def get_reply_body(submission, aggregator):
     url = get_url_from_selftext(selftext, aggregator.lower())
     content = get_content(url)
     title = content.find('h1').text
-    print(url)
     ratings, counts = get_ratings(content, aggregator.lower())
     reply_body = '{} {} review spread at a glance:\n\n'.format(title, aggregator) + get_plot(ratings, counts)
     return reply_body + '\n\n'

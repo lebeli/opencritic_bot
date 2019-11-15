@@ -11,7 +11,7 @@ __status__ = 'Dev'
 
 if __name__ == '__main__':
     criticAggregatorBot = CriticAggregatorBot()
-    if criticAggregatorBot.recent_submissions():
+    if criticAggregatorBot.recent_comments():
         print('Checking for updates.')
         criticAggregatorBot.update()
     if criticAggregatorBot.new_submissions():

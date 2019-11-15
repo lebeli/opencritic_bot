@@ -23,14 +23,12 @@ class CriticAggregatorBot:
     def __init__(self):
         self.interval = 3600
         self.start_time = utc_time_now()
-        self.submit = {}
-        self.edit = {}
-        self.submissions_save = {'submission_id': np.array([]), 'time': np.array([]),
-                                 'comment_id': np.array([]), 'aggregator': np.array([])}
         self.reddit = praw.Reddit('opencritic_bot')
         self.subreddit = self.reddit.subreddit('games')
-        if os.path.exists(CriticAggregatorBot.SAVE_PATH) and os.path.getsize(CriticAggregatorBot.SAVE_PATH):
-            self.submissions_save = self.load_submissions()
+        self.comments = []
+        self.submissions = []
+        self.load_recent_comments()
+        self.load_new_submissions()
 
     def run(self):
         while True:
@@ -48,52 +46,22 @@ class CriticAggregatorBot:
                 print('No submissions found.')
             time.sleep(self.interval)
 
-    def get_submissions(self):
-        return self.submit
-
-    def new_submissions(self):
-        for submission in self.subreddit.search('title:review thread', time_filter='day'):
-            if submission.id not in self.submissions_save['submission_id']:
-                self.submit[submission.id] = submission
-        if self.submit:
-            return True
-        return False
-
-    def save_submissions(self):
-        with open(CriticAggregatorBot.SAVE_PATH, 'wb') as file:
-            pickle.dump(self.submissions_save, file, protocol=pickle.HIGHEST_PROTOCOL)
-
-    def load_submissions(self):
-        with open(CriticAggregatorBot.SAVE_PATH, 'rb') as file:
-            return pickle.load(file)
-
     def reply(self, aggregator='OpenCritic'):
-        for id, submission in self.submit.copy().items():
-            time.sleep(2)
+        for sub in self.submissions:
             try:
-                comment = submission.reply(get_reply_body(submission, aggregator) + get_reply_footer())
+                sub.reply(get_reply_body(sub, aggregator) + get_reply_footer())
             except praw.exceptions.APIException:
                 print("Exception!")
                 continue
-            self.submissions_save['comment_id'] = np.append(self.submissions_save['comment_id'], [comment.id])
-            del self.submit[id]
-            self.submissions_save['submission_id'] = np.append(self.submissions_save['submission_id'], [submission.id])
-            self.submissions_save['time'] = np.append(self.submissions_save['time'], [datetime.now()])
-            self.submissions_save['aggregator'] = np.append(self.submissions_save['aggregator'], [aggregator])
-        self.save_submissions()
-        self.submit = {}
+        self.submissions = []
 
-    def update(self):
-        for i, (sid, cid, agg) in enumerate(zip(self.submissions_save['submission_id'].copy(), self.submissions_save['comment_id'].copy(), self.submissions_save['aggregator'].copy())):
-            comment = self.reddit.comment(cid)
-            reply_body = get_reply_body(self.reddit.submission(sid), agg)
+    def update(self, aggregator='OpenCritic'):
+        recent_submissions = [self.reddit.submission(c.parent_id.split('_')[1]) for c in self.comments]
+        for sub, comm in zip(recent_submissions, self.comments):
+            reply_body = get_reply_body(sub, aggregator)
             try:
-                if comment.author is None:
-                    self.remove_save(i)
-                    print('Comment was removed.')
-                    continue
-                if reply_body not in comment.body:
-                    comment.edit(reply_body + get_reply_footer() + get_reply_edit_time(utc_time_now()))
+                if reply_body not in comm.body:
+                    comm.edit(reply_body + get_reply_footer() + get_reply_edit_time(utc_time_now()))
                     print('Comment edited.')
                 else:
                     print('No changes detected.')
@@ -101,29 +69,23 @@ class CriticAggregatorBot:
                 print('Comment not found.')
                 continue
 
-    def remove_save(self, idx):
-        self.submissions_save['submission_id'] = np.delete(self.submissions_save['submission_id'], idx)
-        self.submissions_save['comment_id'] = np.delete(self.submissions_save['comment_id'], idx)
-        self.submissions_save['aggregator'] = np.delete(self.submissions_save['aggregator'], idx)
-        self.submissions_save['time'] = np.delete(self.submissions_save['time'], idx)
-        self.save_submissions()
+    def load_new_submissions(self):
+        comment_ids = [c.parent_id.split('_')[1] for c in self.comments]
+        self.submissions = [sub for sub in self.subreddit.search('title:review thread', time_filter='day')
+                            if sub.id not in comment_ids]
 
-    def recent_submissions(self):
-        if len(self.submissions_save['submission_id']) == 0:
-            return False
-        keep_idx = [i for i, t in enumerate(self.submissions_save['time']) if (datetime.now() - t).days < 2]
-        self.submissions_save['submission_id'] = self.submissions_save['submission_id'][keep_idx]
-        self.submissions_save['time'] = self.submissions_save['time'][keep_idx]
-        self.submissions_save['comment_id'] = self.submissions_save['comment_id'][keep_idx]
-        self.submissions_save['aggregator'] = self.submissions_save['aggregator'][keep_idx]
-        return True
+    def new_submissions(self):
+        return not len(self.submissions) == 0
 
     def load_all_comments(self):
         user_agent = self.reddit.user.me(use_cache=True)
         all_comments = user_agent.comments.new(limit=None)
-        comments = [ac for ac in all_comments if get_reply_footer() in ac.body]
-        self.submissions_save['submission_id'] = np.array([c.parent_id.split('_')[1] for c in comments])
-        self.submissions_save['time'] = np.array([utc_time_now() for c in comments])
-        self.submissions_save['comment_id'] = np.array([c.id for c in comments])
-        self.submissions_save['aggregator'] = np.array(['OpenCritic' for i in range(len(comments))])
-        print('')
+        self.comments = [ac for ac in all_comments if get_reply_footer() in ac.body]
+
+    def load_recent_comments(self):
+        user_agent = self.reddit.user.me(use_cache=True)
+        all_weekly_comments = user_agent.comments.top('week')
+        self.comments = [awc for awc in all_weekly_comments if get_reply_footer() in awc.body]
+
+    def recent_comments(self):
+        return not len(self.comments) == 0
