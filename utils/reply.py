@@ -29,6 +29,6 @@ def get_reply_edit_time(dt):
 def get_plot(label, value):
     plot = ''
     for l, v in zip(label[::-1], value[::-1]):
-        v = '|' * v
+        v = '▨' * v
         plot = plot + '    {:02d} - {}  \n'.format(l, v)
     return plot
