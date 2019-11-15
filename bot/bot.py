@@ -117,3 +117,13 @@ class CriticAggregatorBot:
         self.submissions_save['comment_id'] = self.submissions_save['comment_id'][keep_idx]
         self.submissions_save['aggregator'] = self.submissions_save['aggregator'][keep_idx]
         return True
+
+    def load_all_comments(self):
+        user_agent = self.reddit.user.me(use_cache=True)
+        all_comments = user_agent.comments.new(limit=None)
+        comments = [ac for ac in all_comments if get_reply_footer() in ac.body]
+        self.submissions_save['submission_id'] = np.array([c.parent_id.split('_')[1] for c in comments])
+        self.submissions_save['time'] = np.array([utc_time_now() for c in comments])
+        self.submissions_save['comment_id'] = np.array([c.id for c in comments])
+        self.submissions_save['aggregator'] = np.array(['OpenCritic' for i in range(len(comments))])
+        print('')
