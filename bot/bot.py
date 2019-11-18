@@ -18,8 +18,6 @@ __status__ = 'Dev'
 
 
 class CriticAggregatorBot:
-    SAVE_PATH = 'resources/submissions_save.pkl'
-
     def __init__(self):
         self.interval = 3600
         self.start_time = utc_time_now()
@@ -84,7 +82,7 @@ class CriticAggregatorBot:
 
     def load_recent_comments(self):
         user_agent = self.reddit.user.me(use_cache=True)
-        all_weekly_comments = user_agent.comments.top('week')
+        all_weekly_comments = [awc for awc in user_agent.comments.top('week')]
         self.comments = [awc for awc in all_weekly_comments if get_reply_footer() in awc.body]
 
     def recent_comments(self):

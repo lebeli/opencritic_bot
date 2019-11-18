@@ -4,7 +4,7 @@ from utils.time import utc_time_now, get_date_str
 
 def get_reply_body(submission, aggregator):
     selftext = submission.selftext
-    if submission.selftext_html is None:
+    if submission.selftext_html is None and submission.crosspost_parent_list:
         selftext = submission.crosspost_parent_list[0]['selftext']
     alternative = {'OpenCritic': 'MetaCritic', 'MetaCritic': 'OpenCritic'}
     if aggregator.lower() not in selftext:
