@@ -70,7 +70,23 @@ class CriticAggregatorBot:
     def load_new_submissions(self):
         comment_ids = [c.parent_id.split('_')[1] for c in self.comments]
         self.submissions = [sub for sub in self.subreddit.search('title:review thread', time_filter='day')
-                            if sub.id not in comment_ids]
+                            if sub.id not in comment_ids and 'reddit.com' in sub.url]
+        delete_idx = []
+        # check if search results indeed review threads
+        for sub in self.submissions:
+            # cross-posted
+            if sub.selftext_html is None:
+                if 'opencritic' not in sub.crosspost_parent_list[0]['selftext']:
+                    delete_idx.append(sub)
+                continue
+            # self post
+            if 'opencritic' not in sub.selftext:
+                delete_idx.append(sub)
+        if delete_idx:
+            for d in delete_idx:
+                del(self.submissions[self.submissions.index(d)])
+
+
 
     def new_submissions(self):
         return not len(self.submissions) == 0
