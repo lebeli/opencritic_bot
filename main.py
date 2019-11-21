@@ -14,8 +14,8 @@ if __name__ == '__main__':
     if criticAggregatorBot.recent_comments():
         print('Checking for updates.')
         criticAggregatorBot.update()
-    if criticAggregatorBot.new_submissions():
-        print('New submissions!')
-        criticAggregatorBot.reply(aggregator='OpenCritic')
+    # if criticAggregatorBot.new_submissions():
+    #     print('New submissions!')
+    #     criticAggregatorBot.reply(aggregator='OpenCritic')
     else:
         print('No submissions found.')

@@ -99,7 +99,7 @@ class CriticAggregatorBot:
     def load_recent_comments(self):
         user_agent = self.reddit.user.me(use_cache=True)
         all_weekly_comments = [awc for awc in user_agent.comments.top('week')]
-        self.comments = [awc for awc in all_weekly_comments if get_reply_footer() in awc.body]
+        self.comments = [awc for awc in all_weekly_comments if "review spread at a glance" in awc.body]
 
     def recent_comments(self):
         return not len(self.comments) == 0
