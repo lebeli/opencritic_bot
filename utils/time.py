@@ -11,3 +11,8 @@ def utc_time_now():
 
 def get_date_str(dt):
     return "^^{} ^^{}, ^^{}".format(MONTHS[dt.month - 1], dt.day, dt.year)
+
+
+def get_time_from_s(s):
+    time = datetime.fromtimestamp(s)
+    return time.replace(tzinfo=timezone.utc)

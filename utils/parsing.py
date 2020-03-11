@@ -1,6 +1,5 @@
 import requests
 import numpy as np
-import re
 
 from bs4 import BeautifulSoup
 
@@ -45,7 +44,11 @@ def get_ratings(content, aggregator):
                 if '%' in ratings_container.text:
                     rating = float(ratings_container.text.split("%")[0].strip()) / 10.0
                 else:
-                    rating = float(ratings_container.text.split("/")[0].strip()) * (10 / float(ratings_container.text.split('/')[1].strip()))
+                    rating_string = ratings_container.text.split("/")[0].strip()
+                    if rating_string == "":
+                        continue
+                    scale_string = ratings_container.text.split('/')[1].strip()
+                    rating = float(rating_string) * (10 / float(scale_string))
                 ratings = np.append(ratings, [rating])
     if aggregator == 'metacritic':  # TODO: fix parsing
         ratings_containers = [rating.find("div") for rating in content.find_all('div', class_='review_grade')]

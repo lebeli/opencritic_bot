@@ -1,12 +1,8 @@
 import praw
-import pickle
-import os
 import time
 
-from datetime import datetime
-from utils.parsing import *
 from utils.reply import *
-from utils.time import utc_time_now
+from utils.time import utc_time_now, get_time_from_s
 
 
 __author__ = 'https://github.com/lebeli'
@@ -47,7 +43,7 @@ class CriticAggregatorBot:
     def reply(self, aggregator='OpenCritic'):
         for sub in self.submissions:
             try:
-                sub.reply(get_reply_body(sub, aggregator) + get_reply_footer())
+                sub.reply(get_reply_body(sub, aggregator) + get_reply_footer() + get_reply_edit_time(utc_time_now()))
             except praw.exceptions.APIException:
                 print("Exception!")
                 continue
@@ -55,11 +51,16 @@ class CriticAggregatorBot:
 
     def update(self, aggregator='OpenCritic'):
         recent_submissions = [self.reddit.submission(c.parent_id.split('_')[1]) for c in self.comments]
-        for sub, comm in zip(recent_submissions, self.comments):
+        for sub, comment in zip(recent_submissions, self.comments):
+            comment_time = get_time_from_s(comment.created_utc)
+            current_time = utc_time_now()
+            # consider only comments from last 7 days
+            if (current_time - comment_time).days > 7:
+                break
             reply_body = get_reply_body(sub, aggregator)
             try:
-                if reply_body not in comm.body:
-                    comm.edit(reply_body + get_reply_footer() + get_reply_edit_time(utc_time_now()))
+                if reply_body not in comment.body:
+                    comment.edit(reply_body + get_reply_footer() + get_reply_edit_time(utc_time_now()))
                     print('Comment edited.')
                 else:
                     print('No changes detected.')
@@ -98,8 +99,8 @@ class CriticAggregatorBot:
 
     def load_recent_comments(self):
         user_agent = self.reddit.user.me(use_cache=True)
-        all_weekly_comments = [awc for awc in user_agent.comments.top('week')]
-        self.comments = [awc for awc in all_weekly_comments if "review spread at a glance" in awc.body]
+        all_new_comments = [anc for anc in user_agent.comments.new()]
+        self.comments = [anc for anc in all_new_comments if "review spread at a glance" in anc.body]
 
     def recent_comments(self):
         return not len(self.comments) == 0
