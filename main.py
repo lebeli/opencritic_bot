@@ -15,11 +15,11 @@ if __name__ == '__main__':
     if criticAggregatorBot.recent_comments():
         print('Checking for updates.')
         try:
-            criticAggregatorBot.update(aggregator='OpenCritic')
+            criticAggregatorBot.update()
         except InternalServerError:
             print('Could not reach server.')
     if criticAggregatorBot.new_submissions():
         print('New submissions!')
-        criticAggregatorBot.reply(aggregator='OpenCritic')
+        criticAggregatorBot.reply()
     else:
         print('No submissions found.')

@@ -35,21 +35,21 @@ class CriticAggregatorBot:
             if self.new_submissions():
                 self.interval = 900
                 print('New submissions!')
-                self.reply(aggregator='MetaCritic')
+                self.reply()
             else:
                 print('No submissions found.')
             time.sleep(self.interval)
 
-    def reply(self, aggregator='OpenCritic'):
+    def reply(self):
         for sub in self.submissions:
             try:
-                sub.reply(get_reply_body(sub, aggregator) + get_reply_footer() + get_reply_edit_time(utc_time_now()))
+                sub.reply(get_reply_body(sub) + get_reply_footer() + get_reply_edit_time(utc_time_now()))
             except praw.exceptions.APIException:
                 print("Exception!")
                 continue
         self.submissions = []
 
-    def update(self, aggregator='OpenCritic'):
+    def update(self):
         recent_submissions = [self.reddit.submission(c.parent_id.split('_')[1]) for c in self.comments]
         for sub, comment in zip(recent_submissions, self.comments):
             comment_time = get_time_from_s(comment.created_utc)
@@ -57,7 +57,7 @@ class CriticAggregatorBot:
             # consider only comments from last 7 days
             if (current_time - comment_time).days > 7:
                 break
-            reply_body = get_reply_body(sub, aggregator)
+            reply_body = get_reply_body(sub)
             try:
                 if reply_body not in comment.body:
                     comment.edit(reply_body + get_reply_footer() + get_reply_edit_time(utc_time_now()))

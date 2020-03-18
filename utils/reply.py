@@ -6,13 +6,9 @@ from bs4 import BeautifulSoup
 from exceptions.server import InternalServerError
 
 
-def get_url_from_selftext(selftext, aggregator):
-    url_path = selftext.split("{}.com/game/".format(aggregator))[1].split(")")[0]
-    if aggregator == 'opencritic':
-        url = "https://{}.com/game/{}/charts".format(aggregator, url_path)
-    if aggregator == 'metacritic':
-        url = "https://www.{}.com/game/{}/critic-reviews".format(aggregator, url_path)
-    return url
+def get_url_from_selftext(selftext):
+    url_path = selftext.split("opencritic.com/game/")[1].split(")")[0]
+    return "https://opencritic.com/game/{}/charts".format(url_path)
 
 
 def get_content(url):
@@ -28,18 +24,15 @@ def get_content(url):
     return BeautifulSoup(html, 'html.parser')
 
 
-def get_reply_body(submission, aggregator):
+def get_reply_body(submission):
     selftext = submission.selftext
     if submission.selftext_html is None and submission.crosspost_parent_list:
         selftext = submission.crosspost_parent_list[0]['selftext']
-    alternative = {'OpenCritic': 'MetaCritic', 'MetaCritic': 'OpenCritic'}
-    if aggregator.lower() not in selftext:
-        aggregator = alternative[aggregator]
-    url = get_url_from_selftext(selftext, aggregator.lower())
+    url = get_url_from_selftext(selftext)
     content = get_content(url)
     title = content.find('h1').text
-    ratings, counts = get_ratings(content, aggregator.lower())
-    reply_body = '{} {} review spread at a glance:\n\n'.format(title, aggregator) + get_plot(ratings, counts)
+    ratings, counts = get_ratings(content)
+    reply_body = '{} OpenCritic review spread at a glance:\n\n'.format(title) + get_plot(ratings, counts)
     return reply_body + '\n\n'
 
 
