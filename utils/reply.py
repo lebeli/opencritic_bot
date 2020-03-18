@@ -1,5 +1,31 @@
-from utils.parsing import get_url_from_selftext, get_content, get_ratings
+import requests
+
+from utils.parsing import get_ratings
 from utils.time import utc_time_now, get_date_str
+from bs4 import BeautifulSoup
+from exceptions.server import InternalServerError
+
+
+def get_url_from_selftext(selftext, aggregator):
+    url_path = selftext.split("{}.com/game/".format(aggregator))[1].split(")")[0]
+    if aggregator == 'opencritic':
+        url = "https://{}.com/game/{}/charts".format(aggregator, url_path)
+    if aggregator == 'metacritic':
+        url = "https://www.{}.com/game/{}/critic-reviews".format(aggregator, url_path)
+    return url
+
+
+def get_content(url):
+    html = ''
+    while html == '':
+        try:
+            r = requests.get(url)
+            if r.status_code != 200:
+                raise InternalServerError
+            html = r.content
+        except requests.exceptions.ConnectionError:
+            print('Connection denied.')
+    return BeautifulSoup(html, 'html.parser')
 
 
 def get_reply_body(submission, aggregator):

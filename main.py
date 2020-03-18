@@ -1,4 +1,5 @@
 from bot.bot import CriticAggregatorBot
+from exceptions.server import InternalServerError
 
 
 __author__ = 'https://github.com/lebeli'
@@ -13,7 +14,10 @@ if __name__ == '__main__':
     criticAggregatorBot = CriticAggregatorBot()
     if criticAggregatorBot.recent_comments():
         print('Checking for updates.')
-        criticAggregatorBot.update()
+        try:
+            criticAggregatorBot.update(aggregator='OpenCritic')
+        except InternalServerError:
+            print('Could not reach server.')
     if criticAggregatorBot.new_submissions():
         print('New submissions!')
         criticAggregatorBot.reply(aggregator='OpenCritic')

@@ -1,7 +1,4 @@
-import requests
 import numpy as np
-
-from bs4 import BeautifulSoup
 
 
 __author__ = 'https://github.com/lebeli'
@@ -10,25 +7,6 @@ __license__ = 'MPL 2.0'
 __version__ = '0.1.0'
 __maintainer__ = 'https://github.com/lebeli'
 __status__ = 'Dev'
-
-
-def get_url_from_selftext(selftext, aggregator):
-    url_path = selftext.split("{}.com/game/".format(aggregator))[1].split(")")[0]
-    if aggregator == 'opencritic':
-        url = "https://{}.com/game/{}/charts".format(aggregator, url_path)
-    if aggregator == 'metacritic':
-        url = "https://www.{}.com/game/{}/critic-reviews".format(aggregator, url_path)
-    return url
-
-
-def get_content(url):
-    html = ''
-    while html == '':
-        try:
-            html = requests.get(url).content
-        except requests.exceptions.ConnectionError:
-            print('Connection denied.')
-    return BeautifulSoup(html, 'html.parser')
 
 
 def get_ratings(content, aggregator):
